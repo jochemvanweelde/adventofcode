@@ -13,5 +13,5 @@ export type ConvertMap = {
 
 export type FertilizerPlan = {
   seeds: Seed[]
-  map: ConvertMap
+  maps: ConvertMap[]
 }

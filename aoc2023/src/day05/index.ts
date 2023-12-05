@@ -1,24 +1,58 @@
 import run from "aocrunner";
-import { FertilizerPlan, Seed } from "./types";
+import { ConvertMap, FertilizerPlan, Seed } from "./types";
 
 const parseInput = (rawInput: string): FertilizerPlan => {
   const [seedString, ...mapList] = rawInput.split('\n')
   const seeds = seedString.trim().split(' ').splice(1).map((seed): Seed => parseInt(seed))
   
-  const maps = mapList.map((row) => {
-    let result;
-    let mapBuilder;
-    if (row === '\n'){
-      
+  let convertMap: ConvertMap[] = [];
+  let mapBuilder: ConvertMap = {
+    name: '',
+    ranges: []
+  }
+
+  mapList.forEach((row) => {
+    if (row === '' && mapBuilder && mapBuilder.name ){
+      convertMap.push(structuredClone(mapBuilder))
+      mapBuilder.name = ''
+      mapBuilder.ranges = []
     }
-  })
+    else if (row.includes(':')){
+      mapBuilder.name = row.split(' ')[0]
+    }
+    else {
+      const [destination, source, length] = row.split(' ').map((number) => parseInt(number))
+      mapBuilder.ranges.push({
+        destination,
+        source,
+        length
+      })
+    }
+  });
+
+  return {
+    seeds,
+    maps: convertMap
+  };
 
 };
 
 const part1 = (rawInput: string) => {
-  const input = parseInput(rawInput);
+  const input = parseInput(rawInput + '\n');
 
-  return;
+  const newSeedValues = input.seeds.map((seed) => {
+    input.maps.forEach((map) => {
+      for (const {source, destination, length} of map.ranges){
+        if(seed >= source && seed < source + length){
+          seed += destination-source
+          return;
+        }
+      }
+    });
+    return seed
+  })
+
+  return Math.min(...newSeedValues)
 };
 
 const part2 = (rawInput: string) => {
@@ -79,5 +113,5 @@ humidity-to-location map:
     solution: part2,
   },
   trimTestInputs: true,
-  onlyTests: true,
+  onlyTests: false,
 });

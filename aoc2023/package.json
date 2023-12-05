@@ -15,11 +15,10 @@
   "author": "Jochem van Weelde",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^16.11.6",
+    "@types/node": "^17.0.29",
     "aocrunner": "^1.9.6",
     "prettier": "^2.8.0"
   },
-  "dependencies": {},
   "engines": {
     "node": ">=16.13.0"
   }
