@@ -106,9 +106,9 @@ function removeOverlappingRange(seedRange: SeedRange, overlap: SeedRange): SeedR
 }
 
 const part2 = (rawInput: string) => {
-  const input = parseInput(rawInput);
+  const input = parseInput(rawInput)
 
-  console.log(input)
+  // console.log(input)
 
   // Oh nvm there aren't a couple of seeds, there're millions, hundreds of millions 😱
   let seedRanges: SeedRange[] = []
@@ -120,38 +120,45 @@ const part2 = (rawInput: string) => {
     })
   }
 
+  // console.log('seedRanges', seedRanges)
+
   //O(N^3) 🥲
   input.maps.forEach((map) => {
+    // console.log('-> new map', map.name, 'with length', map.ranges.length)
     let newSeedRanges: SeedRange[] = []
-    console.log('new map', map.name, 'with length', map.ranges.length)
     map.ranges.forEach(({source, destination, length}) => {
       const mapRange: SeedRange = {
         begin: source,
         end: source + length
       }
-      console.log('next range', mapRange)
+      // console.log('\nnext range', mapRange)
       for (let i = 0; i < seedRanges.length; i++){
         let seedRange = seedRanges[i]
-        console.log('current seed: ', seedRange)
+        // console.log('current seedRange', seedRange)
         
         const overlappingRange = findOverlappingRange(seedRange, mapRange)
-        console.log('overlappingRange', overlappingRange)
+        // console.log('overlappingRange', overlappingRange)
         if (overlappingRange){
-          newSeedRanges.push({
+          const newSeed: SeedRange = {
             begin: overlappingRange.begin + (destination - source),
             end: overlappingRange.end + (destination - source)
-          })
-          seedRanges = seedRanges.filter(e => e !== seedRange)
-          const newSeedRange = removeOverlappingRange(seedRange, overlappingRange)
-          if (newSeedRange){
-            seedRanges.push(...newSeedRange)
           }
-          console.log('newSeedRange', newSeedRange)
+          newSeedRanges.push(newSeed)
+          // console.log('newSeed', newSeed, 'by adding', destination - source)
+
+          seedRanges[i] = {begin: -1, end: -1}
+          const newNonOverlappingSeedRange = removeOverlappingRange(seedRange, overlappingRange)
+          if (newNonOverlappingSeedRange){
+            seedRanges.push(...newNonOverlappingSeedRange)
+          }
+          // console.log('newNonOverlappingSeedRange', newNonOverlappingSeedRange)
         }
       }
-      seedRanges.push(...newSeedRanges)
-      newSeedRanges = []
+      seedRanges = seedRanges.filter((seedRange) => seedRange.begin != -1)
     })
+    seedRanges.push(...newSeedRanges)
+    newSeedRanges = []
+    // console.log('seedRanges', seedRanges)
   })
 
   return seedRanges.reduce((a , c) => {
@@ -159,7 +166,7 @@ const part2 = (rawInput: string) => {
       return c.begin
     }
     return a
-  }, 10e100);
+  }, Infinity);
 };
 
 run({
@@ -207,7 +214,7 @@ humidity-to-location map:
   part2: {
     tests: [
       {
-        input: `seeds: 79 14
+        input: `seeds: 79 14 55 13
 
 seed-to-soil map:
 50 98 2
@@ -246,5 +253,5 @@ humidity-to-location map:
     solution: part2,
   },
   trimTestInputs: true,
-  onlyTests: true,
+  onlyTests: false,
 });
