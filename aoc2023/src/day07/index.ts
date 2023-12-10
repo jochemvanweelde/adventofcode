@@ -2,7 +2,6 @@
 // Dear viewer, I'm sorry for the mess.
 // I'm not proud of this code.
 // But it works.
-// For part 1 at least, Part 2 is a mess, and doesn't work.
 // I'm sorry.
 // =====================================
 
@@ -77,7 +76,15 @@ function addHandToMap(gameToCheck: Game, game: Game, winMap: WinMap, jokers = 0)
   let hand = calculateStrongestWin(gameToCheck);
 
   if (jokers === 1) {
-    hand++;
+    if (hand === Hand.onePair){
+      hand = Hand.threeOfAKind;
+    } else if (hand === Hand.threeOfAKind){
+      hand = Hand.fourOfAKind;
+    } else if (hand === Hand.twoPair) {
+      hand = Hand.fullHouse;
+    } else{
+      hand++;
+    }
   }
   if (jokers === 2) {
     if (hand === Hand.highCard) {
@@ -231,6 +238,8 @@ const part2 = (rawInput: string) => {
 
   sortMapByHighestFirstCard(winMap);
 
+  console.log(winMap);
+
   const sortedWins = winMap.fiveOfAKind.concat(
     winMap.fourOfAKind,
     winMap.fullHouse,
@@ -242,14 +251,12 @@ const part2 = (rawInput: string) => {
 
   console.log(sortedWins);
 
-  let sum = 0;
-
-  for (let i = sortedWins.length; i > 0; i--) {
-    const game = sortedWins[i-1];
-    sum += game.bid * (sortedWins.length+1 - i);
-  }
-
-  return sum;
+  return sortedWins.reduce((prev, curr, index, allGames) => {
+    const {bid} = curr;
+    const rank = allGames.length - index;
+    console.log(`${curr}: bid ${bid} ${rank} ${bid * rank}`)
+    return bid * rank + prev;
+  }, 0);
 };
 
 run({
