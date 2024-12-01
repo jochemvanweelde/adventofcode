@@ -34,7 +34,16 @@ const part1 = (rawInput: string) => {
 const part2 = (rawInput: string) => {
   const input = parseInput(rawInput);
 
-  return;
+  const columns = getColumnsAsLists(input);
+  const firstColumn = columns[0];
+  const secondColumn = columns[1];
+
+  const result = firstColumn.reduce((acc, current) => {
+    const foundTimes = secondColumn.filter((value) => value === current).length;
+    return acc + current * foundTimes;
+  }, 0);
+
+  return result;
 };
 
 run({
@@ -54,10 +63,15 @@ run({
   },
   part2: {
     tests: [
-      // {
-      //   input: ``,
-      //   expected: "",
-      // },
+      {
+        input: `3   4
+4   3
+2   5
+1   3
+3   9
+3   3`,
+        expected: 31,
+      },
     ],
     solution: part2,
   },
