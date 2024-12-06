@@ -19,7 +19,7 @@ Merry Christmas and happy coding! 🎅🎄🎁
 [![Day](https://badgen.net/badge/02/%E2%98%85%E2%98%85/green)](src/day02)
 [![Day](https://badgen.net/badge/03/%E2%98%85%E2%98%85/green)](src/day03)
 [![Day](https://badgen.net/badge/04/%E2%98%85%E2%98%86/yellow)](src/day04)
-![Day](https://badgen.net/badge/05/%E2%98%86%E2%98%86/gray)
+[![Day](https://badgen.net/badge/05/%E2%98%85%E2%98%86/yellow)](src/day05)
 ![Day](https://badgen.net/badge/06/%E2%98%86%E2%98%86/gray)
 ![Day](https://badgen.net/badge/07/%E2%98%86%E2%98%86/gray)
 ![Day](https://badgen.net/badge/08/%E2%98%86%E2%98%86/gray)
@@ -94,16 +94,16 @@ Both parts: 0.847ms
 
 ```
 Day 04
-Time part 1: 6.254ms
+Time part 1: 5.173ms
 Time part 2: -
-Both parts: 6.254ms
+Both parts: 5.173ms
 ```
 
 ```
 Day 05
-Time part 1: -
+Time part 1: 6.13ms
 Time part 2: -
-Both parts: -
+Both parts: 6.13ms
 ```
 
 ```
@@ -247,8 +247,8 @@ Both parts: -
 ```
 
 ```
-Total stars: 7/50
-Total time: 13.66ms
+Total stars: 8/50
+Total time: 18.708ms
 ```
 
 <!--/RESULTS-->
