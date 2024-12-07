@@ -64,8 +64,31 @@ const part1 = (rawInput: string) => {
 
 const part2 = (rawInput: string) => {
   const input = parseInput(rawInput);
+  const rowLength = input.split('\n', 1)[0].length;
 
-  return;
+  const regex1 = new RegExp(
+    `(?=(M.{1}M[.\\s\\S]{${rowLength - 1}}A[.\\s\\S]{${rowLength - 1}}S.{1}S))`,
+    'g',
+  );
+  const regex2 = new RegExp(
+    `(?=(M.{1}S[.\\s\\S]{${rowLength - 1}}A[.\\s\\S]{${rowLength - 1}}M.{1}S))`,
+    'g',
+  );
+  const regex3 = new RegExp(
+    `(?=(S.{1}M[.\\s\\S]{${rowLength - 1}}A[.\\s\\S]{${rowLength - 1}}S.{1}M))`,
+    'g',
+  );
+  const regex4 = new RegExp(
+    `(?=(S.{1}S[.\\s\\S]{${rowLength - 1}}A[.\\s\\S]{${rowLength - 1}}M.{1}M))`,
+    'g',
+  );
+
+  const result = input.match(regex1)?.length;
+  const result2 = input.match(regex2)?.length;
+  const result3 = input.match(regex3)?.length;
+  const result4 = input.match(regex4)?.length;
+
+  return (result || 0) + (result2 || 0) + (result3 || 0) + (result4 || 0);
 };
 
 run({
@@ -96,10 +119,32 @@ AAAX`,
   },
   part2: {
     tests: [
-      // {
-      //   input: ``,
-      //   expected: "",
-      // },
+      {
+        input: `MMMSXXMASM
+MSAMXMSMSA
+AMXSXMAAMM
+MSAMASMSMX
+XMASAMXAMM
+XXAMMXXAMA
+SMSMSASXSS
+SAXAMASAAA
+MAMMMXMMMM
+MXMXAXMASX`,
+        expected: 9,
+      },
+      {
+        input: `.M.S......
+..A..MSMS.
+.M.S.MAA..
+..A.ASMSM.
+.M.S.M....
+..........
+S.S.S.S.S.
+.A.A.A.A..
+M.M.M.M.M.
+..........`,
+        expected: 9,
+      },
     ],
     solution: part2,
   },
