@@ -5,6 +5,8 @@ type Equation = {
   result: number;
 };
 
+type Operator = '+' | '*' | '||';
+
 const parseInput = (rawInput: string): Equation[] =>
   rawInput.split('\n').map((line) => {
     const [result, numbers] = line.split(': ');
@@ -14,31 +16,41 @@ const parseInput = (rawInput: string): Equation[] =>
     };
   });
 
-const getAllOperatorOrders = (amountOfOperators: number): string[][] => {
-  const operators = ['+', '*'];
-  const result: string[][] = [];
-  const generate = (current: string) => {
-    if (current.length === amountOfOperators) {
-      result.push(current.split(''));
+const getAllOperatorOrders = (
+  amountOfOperators: number,
+  operators: Operator[],
+): string[][] => {
+  const operatorOrders: string[][] = [];
+
+  const generateOperatorOrders = (order: string[]) => {
+    if (order.length === amountOfOperators) {
+      operatorOrders.push(order);
       return;
     }
-    operators.forEach((operator) => generate(current + operator));
+
+    for (const operator of operators) {
+      generateOperatorOrders([...order, operator]);
+    }
   };
-  generate('');
-  return result;
+
+  generateOperatorOrders([]);
+
+  return operatorOrders;
 };
 
-const hasSolution = (equation: Equation): boolean => {
+const hasSolution = (equation: Equation, operators: Operator[]): boolean => {
   const amountOfNumbers = equation.numbers.length;
-  const operators = getAllOperatorOrders(amountOfNumbers - 1);
+  const operatorOrders = getAllOperatorOrders(amountOfNumbers - 1, operators);
 
-  for (const operatorOrder of operators) {
+  for (const operatorOrder of operatorOrders) {
     const numbers = [...equation.numbers];
     const result = operatorOrder.reduce((acc, operator, index) => {
       if (operator === '+') {
         return acc + numbers[index + 1];
       } else if (operator === '*') {
         return acc * numbers[index + 1];
+      } else if (operator === '||') {
+        return parseInt(acc.toString() + numbers[index + 1].toString());
       } else {
         throw new Error('Invalid operator');
       }
@@ -54,7 +66,9 @@ const hasSolution = (equation: Equation): boolean => {
 const part1 = (rawInput: string) => {
   const input = parseInput(rawInput);
 
-  const validEquations = input.filter(hasSolution);
+  const validEquations = input.filter((equation) =>
+    hasSolution(equation, ['+', '*']),
+  );
 
   const sumOfAllEquations = validEquations.reduce(
     (acc, equation) => acc + equation.result,
@@ -67,7 +81,16 @@ const part1 = (rawInput: string) => {
 const part2 = (rawInput: string) => {
   const input = parseInput(rawInput);
 
-  return;
+  const validEquations = input.filter((equation) =>
+    hasSolution(equation, ['+', '*', '||']),
+  );
+
+  const sumOfAllEquations = validEquations.reduce(
+    (acc, equation) => acc + equation.result,
+    0,
+  );
+
+  return sumOfAllEquations;
 };
 
 run({
@@ -90,10 +113,18 @@ run({
   },
   part2: {
     tests: [
-      // {
-      //   input: ``,
-      //   expected: "",
-      // },
+      {
+        input: `190: 10 19
+3267: 81 40 27
+83: 17 5
+156: 15 6
+7290: 6 8 6 15
+161011: 16 10 13
+192: 17 8 14
+21037: 9 7 18 13
+292: 11 6 16 20`,
+        expected: 11387,
+      },
     ],
     solution: part2,
   },
