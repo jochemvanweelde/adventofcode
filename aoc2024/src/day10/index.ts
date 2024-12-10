@@ -62,8 +62,18 @@ const part1 = (rawInput: string) => {
 
 const part2 = (rawInput: string) => {
   const input = parseInput(rawInput);
+  let trails = 0;
 
-  return;
+  for (let y = 0; y < input.length; y++) {
+    for (let x = 0; x < input[y].length; x++) {
+      if (input[y][x].value === 0) {
+        const searchResult = searchHikeTrailTail(input, x, y);
+        trails += searchResult.length;
+      }
+    }
+  }
+
+  return trails;
 };
 
 run({
@@ -85,10 +95,17 @@ run({
   },
   part2: {
     tests: [
-      // {
-      //   input: ``,
-      //   expected: "",
-      // },
+      {
+        input: `89010123
+78121874
+87430965
+96549874
+45678903
+32019012
+01329801
+10456732`,
+        expected: 81,
+      },
     ],
     solution: part2,
   },
