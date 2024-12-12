@@ -22,21 +22,59 @@ const blinkListOfStones = (input: number[]) =>
     return [...acc, ...newStone];
   }, []);
 
+const blinkStonesOptimized = (stoneMap: Map<number, number>) => {
+  const newStoneMap = new Map<number, number>();
+
+  stoneMap.forEach((amountOfStones, stoneEngraving) => {
+    const newStones = blinkStone(stoneEngraving);
+    newStones.forEach((newStone) => {
+      if (newStoneMap.has(newStone)) {
+        newStoneMap.set(newStone, newStoneMap.get(newStone) + amountOfStones);
+      } else {
+        newStoneMap.set(newStone, amountOfStones);
+      }
+    });
+  });
+
+  return newStoneMap;
+};
+
 const part1 = (rawInput: string) => {
   const input = parseInput(rawInput);
 
-  let result = input;
+  let stoneMap = new Map<number, number>();
+  input.forEach((stone) => {
+    if (stoneMap.has(stone)) {
+      stoneMap.set(stone, stoneMap.get(stone) + 1);
+    } else {
+      stoneMap.set(stone, 1);
+    }
+  });
+
   for (let i = 0; i < 25; i++) {
-    console.log(`Running iteration ${i + 1}`);
-    result = blinkListOfStones(result);
+    stoneMap = blinkStonesOptimized(stoneMap);
   }
-  return result.length;
+
+  return Array.from(stoneMap.values()).reduce((acc, curr) => acc + curr, 0);
 };
 
 const part2 = (rawInput: string) => {
   const input = parseInput(rawInput);
 
-  return;
+  let stoneMap = new Map<number, number>();
+  input.forEach((stone) => {
+    if (stoneMap.has(stone)) {
+      stoneMap.set(stone, stoneMap.get(stone) + 1);
+    } else {
+      stoneMap.set(stone, 1);
+    }
+  });
+
+  for (let i = 0; i < 75; i++) {
+    stoneMap = blinkStonesOptimized(stoneMap);
+  }
+
+  return Array.from(stoneMap.values()).reduce((acc, curr) => acc + curr, 0);
 };
 
 run({
