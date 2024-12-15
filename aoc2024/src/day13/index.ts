@@ -1,4 +1,6 @@
 import run from 'aocrunner';
+import { assert } from 'console';
+import { inv, matrix, multiply, det } from 'mathjs';
 
 type ClawMachine = {
   buttonA: { x: number; y: number; cost: number };
@@ -50,6 +52,63 @@ const findLowestCostToReachPrize = (clawMachine: ClawMachine) => {
   return lowestCost === Infinity ? 0 : lowestCost;
 };
 
+const changePrizeLocationForPart2 = (
+  clawMachine: ClawMachine[],
+): ClawMachine[] =>
+  clawMachine.map((machine) => ({
+    ...machine,
+    prize: {
+      x: machine.prize.x + 10000000000000,
+      y: machine.prize.y + 10000000000000,
+    },
+  }));
+
+const findLowestCostToReachPrize2 = (clawMachine: ClawMachine) => {
+  const { buttonA, buttonB, prize } = clawMachine;
+
+  const buttonMatrix = matrix([
+    [buttonA.x, buttonB.x],
+    [buttonA.y, buttonB.y],
+  ]);
+
+  const isDeterminantZero = det(buttonMatrix) === 0;
+
+  if (isDeterminantZero) {
+    console.error('Linearly dependent!');
+    throw new Error('Linearly dependent!');
+  }
+
+  const prizeMatrix = matrix([[prize.x], [prize.y]]);
+
+  const buttonInverse = inv(buttonMatrix);
+
+  const solution = multiply(buttonInverse, prizeMatrix);
+
+  const [pushA, pushB] = solution.toArray() as number[];
+
+  if (
+    (pushA.toString().includes('.') || pushB.toString().includes('.')) &&
+    !pushA.toString().includes('.0000') &&
+    !pushA.toString().includes('.9999') &&
+    !pushB.toString().includes('.0000') &&
+    !pushB.toString().includes('.9999')
+  ) {
+    // console.log('wrong: ', pushA, pushB);
+    return 0;
+  }
+
+  // console.log('right: ', pushA, pushB);
+
+  const roundedPushA = Math.round(pushA);
+  const roundedPushB = Math.round(pushB);
+  const x = buttonA.x * roundedPushA + buttonB.x * roundedPushB;
+  const y = buttonA.y * roundedPushA + buttonB.y * roundedPushB;
+  assert(x === prize.x && y === prize.y);
+
+  const cost = buttonA.cost * roundedPushA + buttonB.cost * roundedPushB;
+  return cost;
+};
+
 const part1 = (rawInput: string) => {
   const input = parseInput(rawInput);
 
@@ -64,7 +123,14 @@ const part1 = (rawInput: string) => {
 const part2 = (rawInput: string) => {
   const input = parseInput(rawInput);
 
-  return;
+  const actualInput = changePrizeLocationForPart2(input);
+
+  const totalCost = actualInput.reduce((acc, clawMachine) => {
+    const lowestCost = findLowestCostToReachPrize2(clawMachine);
+    return acc + lowestCost;
+  }, 0);
+
+  return totalCost;
 };
 
 run({
@@ -93,10 +159,24 @@ Prize: X=18641, Y=10279`,
   },
   part2: {
     tests: [
-      // {
-      //   input: ``,
-      //   expected: "",
-      // },
+      {
+        input: `Button A: X+94, Y+34
+Button B: X+22, Y+67
+Prize: X=8400, Y=5400
+
+Button A: X+26, Y+66
+Button B: X+67, Y+21
+Prize: X=12748, Y=12176
+
+Button A: X+17, Y+86
+Button B: X+84, Y+37
+Prize: X=7870, Y=6450
+
+Button A: X+69, Y+23
+Button B: X+27, Y+71
+Prize: X=18641, Y=10279`,
+        expected: 875318608908,
+      },
     ],
     solution: part2,
   },
