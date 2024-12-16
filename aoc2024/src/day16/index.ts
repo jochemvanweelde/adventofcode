@@ -6,6 +6,7 @@ type MazeTile = {
   type: '#' | '.' | 'S' | 'E';
   value: number;
   direction?: 'N' | 'E' | 'S' | 'W';
+  onOneOfBestPaths: boolean;
 };
 
 type Maze = {
@@ -34,6 +35,7 @@ const parseInput = (rawInput: string): Maze => {
         type: char as '#' | '.' | 'S' | 'E',
         value: char === 'S' ? 0 : Infinity,
         direction: char === 'S' ? 'E' : undefined,
+        onOneOfBestPaths: false,
       };
 
       if (char === 'S') {
@@ -130,6 +132,96 @@ const exploreMaze = (maze: Maze) => {
   return end.value;
 };
 
+const getNeighbors = (maze: Maze, tile: MazeTile) => {
+  const { x, y } = tile;
+
+  const tiles = [
+    maze.tiles[y - 1]?.[x], // N
+    maze.tiles[y]?.[x + 1], // E
+    maze.tiles[y + 1]?.[x], // S
+    maze.tiles[y]?.[x - 1], // W
+  ].filter((tile) => tile && tile.type !== '#');
+
+  return tiles;
+};
+
+const getNeighborsBacktracking = (maze: Maze, tile: MazeTile) => {
+  const { x, y, value } = tile;
+
+  const tiles = [
+    maze.tiles[y - 1]?.[x], // N
+    maze.tiles[y]?.[x + 1], // E
+    maze.tiles[y + 1]?.[x], // S
+    maze.tiles[y]?.[x - 1], // W
+  ].filter(
+    (ft) =>
+      (ft && value - ft.value <= 1001 && value - ft.value >= 1) ||
+      getNeighbors(maze, tile).some((n) => n.value - ft.value === 2),
+  );
+
+  return tiles;
+};
+
+const backTrackAllPossibleBestPaths = (maze: Maze) => {
+  const { end } = maze;
+  const queue = [end];
+  const visited = new Set<string>();
+
+  visited.add(`${end.x},${end.y}`);
+
+  while (queue.length) {
+    const current = queue.shift() as MazeTile;
+
+    const possibleNeighbors = getNeighborsBacktracking(maze, current);
+    possibleNeighbors.forEach((pN) => {
+      const { x, y } = pN;
+      const neighborTile = maze.tiles[y][x];
+
+      if (!visited.has(`${x},${y}`)) {
+        neighborTile.onOneOfBestPaths = true;
+        queue.push(neighborTile);
+        visited.add(`${x},${y}`);
+      }
+    });
+  }
+
+  return visited.size;
+};
+
+const printBoard = (maze: Maze) => {
+  for (let y = 0; y < maze.height; y++) {
+    let line = '';
+    for (let x = 0; x < maze.width; x++) {
+      const tile = maze.tiles[y][x];
+      if (tile.onOneOfBestPaths) {
+        line += `\x1b[33mO\x1b[0m`;
+      } else {
+        line += tile.type;
+      }
+    }
+    console.log(line);
+  }
+};
+
+const printBoardWithValues = (maze: Maze) => {
+  for (let y = 0; y < maze.height; y++) {
+    let line = '';
+    for (let x = 0; x < maze.width; x++) {
+      const tile = maze.tiles[y][x];
+      if (tile.onOneOfBestPaths) {
+        line += `\x1b[33m${tile.value.toString().padEnd(9, ' ')}\x1b[0m`;
+      } else {
+        const value =
+          tile.value === Infinity
+            ? 'INF'.padEnd(9, ' ')
+            : tile.value.toString().padEnd(9, ' ');
+        line += value;
+      }
+    }
+    console.log(line);
+  }
+};
+
 const part1 = (rawInput: string) => {
   const input = parseInput(rawInput);
 
@@ -139,7 +231,16 @@ const part1 = (rawInput: string) => {
 const part2 = (rawInput: string) => {
   const input = parseInput(rawInput);
 
-  return;
+  exploreMaze(input);
+
+  const result = backTrackAllPossibleBestPaths(input);
+
+  // printBoard(input);
+  //! NOTE: Gives wrong result on actual input. Use PrintBoard to see the paths and subtract the number of 'O's from the wrong paths.
+  // console.log();
+  // printBoardWithValues(input);
+
+  return result;
 };
 
 run({
@@ -188,10 +289,44 @@ run({
   },
   part2: {
     tests: [
-      // {
-      //   input: ``,
-      //   expected: "",
-      // },
+      {
+        input: `###############
+#.......#....E#
+#.#.###.#.###.#
+#.....#.#...#.#
+#.###.#####.#.#
+#.#.#.......#.#
+#.#.#####.###.#
+#...........#.#
+###.#.#####.#.#
+#...#.....#.#.#
+#.#.#.###.#.#.#
+#.....#...#.#.#
+#.###.#.#.#.#.#
+#S..#.....#...#
+###############`,
+        expected: 45,
+      },
+      {
+        input: `#################
+#...#...#...#..E#
+#.#.#.#.#.#.#.#.#
+#.#.#.#...#...#.#
+#.#.#.#.###.#.#.#
+#...#.#.#.....#.#
+#.#.#.#.#.#####.#
+#.#...#.#.#.....#
+#.#.#####.#.###.#
+#.#.#.......#...#
+#.#.###.#####.###
+#.#.#...#.....#.#
+#.#.#.#####.###.#
+#.#.#.........#.#
+#.#.#.#########.#
+#S#.............#
+#################`,
+        expected: 64,
+      },
     ],
     solution: part2,
   },
