@@ -29,3 +29,14 @@
  *     import { myUtil } from '../utils'
  *
  */
+
+export function max(prev: number, curr: number) {
+  if (curr > prev) {
+    return curr;
+  }
+  return prev;
+}
+
+export function sum(prev: number, curr: number) {
+  return prev + curr;
+}
