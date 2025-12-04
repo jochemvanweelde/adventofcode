@@ -40,3 +40,28 @@ export function max(prev: number, curr: number) {
 export function sum(prev: number, curr: number) {
   return prev + curr;
 }
+
+const DIRS_8 = [
+  [-1, -1],
+  [-1, 0],
+  [-1, 1],
+  [0, -1],
+  [0, 1],
+  [1, -1],
+  [1, 0],
+  [1, 1],
+];
+
+export function getNeighbors8<T>(grid: T[][], r: number, c: number): T[] {
+  const neighbors: T[] = [];
+
+  for (const [dr, dc] of DIRS_8) {
+    const nr = r + dr;
+    const nc = c + dc;
+    if (grid[nr]?.[nc] !== undefined) {
+      neighbors.push(grid[nr][nc]);
+    }
+  }
+
+  return neighbors;
+}
